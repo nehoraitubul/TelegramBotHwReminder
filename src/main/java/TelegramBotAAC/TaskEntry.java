@@ -1,4 +1,4 @@
-package PersonalProjects.TelegramBotAAC;
+package TelegramBotAAC;
 
 import java.time.LocalDate;
 

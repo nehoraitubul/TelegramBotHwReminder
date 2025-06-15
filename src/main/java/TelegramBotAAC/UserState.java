@@ -1,4 +1,4 @@
-package PersonalProjects.TelegramBotAAC;
+package TelegramBotAAC;
 
 public enum UserState {
     NONE,

@@ -1,4 +1,4 @@
-package PersonalProjects.TelegramBotAAC;
+package TelegramBotAAC;
 
 import java.io.File;
 import java.io.IOException;

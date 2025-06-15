@@ -1,4 +1,4 @@
-package PersonalProjects.TelegramBotAAC;
+package TelegramBotAAC;
 
 import com.opencsv.CSVWriter;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -39,7 +39,13 @@ public class MyBot extends TelegramLongPollingBot {
     }
 
     public String getBotToken(){
-        return "7691437918:AAHnGdRgRN55TP6bV1ZMD29hsGdDnLWK3dk";
+        String token = System.getenv("TELEGRAM_BOT_TOKEN");
+
+        if (token == null) {
+            token = EnvLoader.getEnv("TELEGRAM_BOT_TOKEN");
+        }
+
+        return token;
     }
 
     @Override

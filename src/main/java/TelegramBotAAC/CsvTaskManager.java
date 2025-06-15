@@ -1,4 +1,4 @@
-package PersonalProjects.TelegramBotAAC;
+package TelegramBotAAC;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
