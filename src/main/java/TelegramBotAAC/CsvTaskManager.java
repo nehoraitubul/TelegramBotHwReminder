@@ -3,10 +3,8 @@ package TelegramBotAAC;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,7 +17,7 @@ public class CsvTaskManager {
     public CsvTaskManager(){
         File file = new File(FILE_PATH);
         if (!file.exists()  || file.length() == 0){
-            try (CSVWriter writer = new CSVWriter(new FileWriter(FILE_PATH))) {
+            try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
                 writer.writeNext(new String[]{"TaskID", "Description", "DueDate", "AddedBy", "UserID", "Submitted"});
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -31,8 +29,8 @@ public class CsvTaskManager {
         List<TaskEntry> tasks = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
-        try{
-            CSVReader reader = new CSVReader(new FileReader(FILE_PATH));
+        try (CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(FILE_PATH), StandardCharsets.UTF_8))) {
+
             reader.readNext();
             String[] nextLine;
 
@@ -58,7 +56,7 @@ public class CsvTaskManager {
         List<TaskEntry> tasks = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
-        try (CSVReader reader = new CSVReader(new FileReader(FILE_PATH))) {
+        try (CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(FILE_PATH), StandardCharsets.UTF_8))) {
             reader.readNext();
             String[] nextLine;
 
@@ -85,7 +83,7 @@ public class CsvTaskManager {
     public void addTaskForAllUsers(String description, LocalDate dueDate, String addedBy, Set<Long> userIds){
         int newTaskId = getNextTaskId();
 
-        try (CSVWriter writer = new CSVWriter(new FileWriter(FILE_PATH, true))) {
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
             for (long id : userIds){
                 TaskEntry entry = new TaskEntry(newTaskId, description, dueDate, addedBy, id, false);
                 writer.writeNext(entry.toCsvRow());
@@ -98,7 +96,7 @@ public class CsvTaskManager {
     public void addTaskForSingleUser(String description, LocalDate dueDate, String addedBy, long userId) {
         int newTaskId = getNextTaskId();
 
-        try (CSVWriter writer = new CSVWriter(new FileWriter(FILE_PATH, true))) {
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
             TaskEntry entry = new TaskEntry(newTaskId, description, dueDate, addedBy, userId, false);
             writer.writeNext(entry.toCsvRow());
         } catch (IOException e) {
@@ -130,7 +128,7 @@ public class CsvTaskManager {
     }
 
     private void saveAllTasks(List<TaskEntry> tasks) {
-        try (CSVWriter writer = new CSVWriter(new FileWriter(FILE_PATH))) {
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
             writer.writeNext(new String[]{"TaskID", "Description", "DueDate", "AddedBy", "UserID", "Submitted"});
 
             for (TaskEntry task : tasks) {
@@ -147,7 +145,7 @@ public class CsvTaskManager {
         List<TaskEntry> tasks = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
-        try (CSVReader reader = new CSVReader(new FileReader(FILE_PATH))) {
+        try (CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(FILE_PATH), StandardCharsets.UTF_8))) {
             reader.readNext();
             String[] nextLine;
 

@@ -13,8 +13,11 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -394,7 +397,7 @@ public class MyBot extends TelegramLongPollingBot {
         List<TaskEntry> allTasks = csvTaskManager.loadTasks();
         LocalDate today = LocalDate.now();
 
-        try (CSVWriter writer = new CSVWriter(new FileWriter("tasks.csv", true))) {
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream("tasks.csv", true), StandardCharsets.UTF_8))) {
             for (TaskEntry task : allTasks) {
                 if (task.addedBy.equals("Admin") && !task.submitted && !task.dueDate.isBefore(today)) {
                     TaskEntry newEntry = new TaskEntry(task.taskId, task.description, task.dueDate, task.addedBy, newChatId, false);
