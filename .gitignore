@@ -14,6 +14,7 @@ target/
 .idea/
 *.class
 *.log
+*.properties
 
 ### Eclipse ###
 .apt_generated

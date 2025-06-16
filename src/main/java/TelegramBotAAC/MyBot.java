@@ -104,7 +104,7 @@ public class MyBot extends TelegramLongPollingBot {
 
                 case NONE:
                 default:
-                    sendMessage(chatId, "לא הבנתי אותך 😄");
+                    sendMessage(chatId, "🤖 לא הבנתי את הבקשה... אם צריך עזרה אפשר לכתוב /help 📄");
                     break;
             }
         } else if (update.hasCallbackQuery()) {
@@ -140,11 +140,10 @@ public class MyBot extends TelegramLongPollingBot {
                 sendMessage(chatId, "המשימה נוספה לכולם בהצלחה!");
             } else {
                 csvTaskManager.addTaskForSingleUser(description, dueDate, "User", chatId);
-                sendMessage(chatId, "המשימה נוספה רק לך.");
+                sendMessage(chatId, "המשימה נוספה, בהצלחה!");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("אירעה חריגה במהלך הוספת המשימה");
         }
 
         userStates.put(chatId, UserState.NONE);
@@ -460,19 +459,19 @@ public class MyBot extends TelegramLongPollingBot {
 
     private void sendWelcomeMessage(Long chatId) {
         String welcomeText = """
-    🎓 *ברוך הבא למערכת ניהול המטלות של החוג!*
+🎓 *ברוך הבא למערכת ניהול המשימות של התואר שלנו!*
 
-    ✅ כל המטלות שעדיין פתוחות כבר נוספו אוטומטית לרשימה האישית שלך.
-    ✅ אין צורך להוסיף בעצמך משימות שכבר קיימות — המערכת דואגת לכך לבד.
-    ✅ בכל יום ב-20:00 תקבל תזכורת אוטומטית עם סטטוס המשימות שלך.
-    
-    📝 תוכל בכל שלב:
-    /list — לראות את המשימות שלך.
-    /update — לסמן משימות כהוגשו או לבטל הגשה.
-    /help — לקבל שוב את כל ההוראות.
-    
-    שיהיה בהצלחה ושהסמסטר יעבור בקלות! 📚
-    """;
+✅ כל המשימות שפתוחות נוספו אוטומטית לרשימה האישית שלך.
+✅ אין צורך להוסיף בעצמך משימות שכבר קיימות — הכל מתעדכן לבד.
+✅ בכל יום ב-20:00 תקבל תזכורת עם המשימות שלך.
+
+📝 תוכל להשתמש בפקודות:
+- /list — לראות את המשימות שלך
+- /update — לסמן שהגשת משימות או לבטל הגשה
+- /help — לראות שוב את כל ההוראות
+
+🚀 שיהיה בהצלחה בלימודים! ואם יש בעיות — תדברו איתי 😉
+""";
 
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
@@ -482,6 +481,13 @@ public class MyBot extends TelegramLongPollingBot {
             execute(message);
         } catch (TelegramApiException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    public void sendDailyReminderToAll() {
+        for (Long chatId : userManager.getAllUsers()) {
+            sendReminderForUser(chatId);
         }
     }
 
