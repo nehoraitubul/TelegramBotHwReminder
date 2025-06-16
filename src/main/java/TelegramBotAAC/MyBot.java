@@ -27,6 +27,9 @@ import java.util.*;
 public class MyBot extends TelegramLongPollingBot {
     private final long adminId = 1276968974;
 
+    private static final String DATA_DIR = "/data/";
+    private static final String FILE_PATH = DATA_DIR + "tasks.csv";
+
     private Map<Long, UserState> userStates = new HashMap<>();
     private Map<Long, String> pendingTaskDescriptions = new HashMap<>();
 
@@ -133,7 +136,8 @@ public class MyBot extends TelegramLongPollingBot {
         }
         try {
             if (chatId.equals(adminId)) {
-                csvTaskManager.addTaskForAllUsers(description, dueDate, "Admin", userManager.getAllUsers());                sendMessage(chatId, "המשימה נוספה לכולם בהצלחה!");
+                csvTaskManager.addTaskForAllUsers(description, dueDate, "Admin", userManager.getAllUsers());
+                sendMessage(chatId, "המשימה נוספה לכולם בהצלחה!");
             } else {
                 csvTaskManager.addTaskForSingleUser(description, dueDate, "User", chatId);
                 sendMessage(chatId, "המשימה נוספה רק לך.");
@@ -208,7 +212,7 @@ public class MyBot extends TelegramLongPollingBot {
             removeInlineKeyboard(chatId, messageId);
         }
         else if (data.equals("SHOW_UNDO")) {
-            removeInlineKeyboard(chatId, messageId);  // כאן נוסיף את הניקוי
+            removeInlineKeyboard(chatId, messageId);
             showUndoMenu(chatId);
         }
         else if (data.startsWith("UNDO:")) {
@@ -249,13 +253,11 @@ public class MyBot extends TelegramLongPollingBot {
             rows.add(Collections.singletonList(button));
         }
 
-        // כפתור Undo תמיד קיים
         InlineKeyboardButton undoButton = new InlineKeyboardButton();
         undoButton.setText("↩ בטל הגשה");
         undoButton.setCallbackData("SHOW_UNDO");
         rows.add(Collections.singletonList(undoButton));
 
-        // כפתור ביטול פעולה חדש:
         InlineKeyboardButton cancelButton = new InlineKeyboardButton();
         cancelButton.setText("❌ בטל פעולה");
         cancelButton.setCallbackData("CANCEL");
@@ -328,7 +330,7 @@ public class MyBot extends TelegramLongPollingBot {
                 for (Long chatId : userManager.getAllUsers()) {
                     sendReminderForUser(chatId);
                 }
-                backupManager.backupFiles(); // גיבוי אחרי השליחה
+                backupManager.backupFiles();
             }
         };
 
@@ -350,7 +352,6 @@ public class MyBot extends TelegramLongPollingBot {
         Date targetTime = calendar.getTime();
 
         if (targetTime.before(new Date())) {
-            // אם כבר עבר 20:00 היום - נעבור ליום הבא
             calendar.add(Calendar.DATE, 1);
             targetTime = calendar.getTime();
         }
@@ -397,7 +398,7 @@ public class MyBot extends TelegramLongPollingBot {
         List<TaskEntry> allTasks = csvTaskManager.loadTasks();
         LocalDate today = LocalDate.now();
 
-        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream("tasks.csv", true), StandardCharsets.UTF_8))) {
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH, true), StandardCharsets.UTF_8))) {
             for (TaskEntry task : allTasks) {
                 if (task.addedBy.equals("Admin") && !task.submitted && !task.dueDate.isBefore(today)) {
                     TaskEntry newEntry = new TaskEntry(task.taskId, task.description, task.dueDate, task.addedBy, newChatId, false);

@@ -12,11 +12,18 @@ import java.util.List;
 import java.util.Set;
 
 public class CsvTaskManager {
-    private static final String FILE_PATH = "tasks.csv";
+    private static final String DATA_DIR = "/data/";
+    private static final String FILE_PATH = DATA_DIR + "tasks.csv";
 
-    public CsvTaskManager(){
+
+    public CsvTaskManager() {
+        File dir = new File(DATA_DIR);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
         File file = new File(FILE_PATH);
-        if (!file.exists()  || file.length() == 0){
+        if (!file.exists()  || file.length() == 0) {
             try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
                 writer.writeNext(new String[]{"TaskID", "Description", "DueDate", "AddedBy", "UserID", "Submitted"});
             } catch (Exception e) {
@@ -24,6 +31,7 @@ public class CsvTaskManager {
             }
         }
     }
+
 
     public List<TaskEntry> loadTasks(){
         List<TaskEntry> tasks = new ArrayList<>();

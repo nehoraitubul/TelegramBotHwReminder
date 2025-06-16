@@ -10,6 +10,9 @@ import java.time.LocalDate;
 
 public class BackupManager {
     private static final String BACKUP_FOLDER = "backups";
+    private static final String DATA_DIR = "/data/";
+    private static final String TASK_FILE_PATH = DATA_DIR + "tasks.csv";
+    private static final String USER_FILE_PATH = DATA_DIR + "users.csv";
 
     public BackupManager() {
         File dir = new File(BACKUP_FOLDER);
@@ -21,8 +24,8 @@ public class BackupManager {
     public void backupFiles() {
         String date = LocalDate.now().toString();
 
-        backupFile("tasks.csv", "tasks_backup_" + date + ".csv");
-        backupFile("users.csv", "users_backup_" + date + ".csv");
+        backupFile(TASK_FILE_PATH, "tasks_backup_" + date + ".csv");
+        backupFile(USER_FILE_PATH, "users_backup_" + date + ".csv");
     }
 
     private void backupFile(String sourceFileName, String backupFileName) {

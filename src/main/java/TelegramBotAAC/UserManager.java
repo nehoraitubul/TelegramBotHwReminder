@@ -12,11 +12,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class UserManager {
-    private static final String FILE_PATH = "users.csv";
+    private static final String DATA_DIR = "/data/";
+    private static final String FILE_PATH = DATA_DIR + "users.csv";
 
     private Set<Long> users = new HashSet<>();
 
+
     public UserManager() {
+        File dir = new File(DATA_DIR);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
         File file = new File(FILE_PATH);
         if (!file.exists()) {
             try (CSVWriter writer = new CSVWriter(new FileWriter(FILE_PATH))) {
@@ -27,6 +34,7 @@ public class UserManager {
         }
         loadUsers();
     }
+
 
     private void loadUsers() {
         try (CSVReader reader = new CSVReader(new FileReader(FILE_PATH))) {
