@@ -23,12 +23,20 @@ public class CsvTaskManager {
         }
 
         File file = new File(FILE_PATH);
-        if (!file.exists()  || file.length() == 0) {
-            try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH, true), StandardCharsets.UTF_8))) {
+        if (!file.exists() || isFileEmpty(file)) {
+            try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
                 writer.writeNext(new String[]{"TaskID", "Description", "DueDate", "AddedBy", "UserID", "Submitted"});
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    private boolean isFileEmpty(File file) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            return reader.readLine() == null;
+        } catch (IOException e) {
+            return true;
         }
     }
 
