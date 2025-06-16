@@ -144,7 +144,7 @@ public class CsvTaskManager {
     }
 
     private void saveAllTasks(List<TaskEntry> tasks) {
-        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH, true), StandardCharsets.UTF_8))) {
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
             writer.writeNext(new String[]{"TaskID", "Description", "DueDate", "AddedBy", "UserID", "Submitted"});
 
             for (TaskEntry task : tasks) {
