@@ -9,8 +9,8 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 
 public class BackupManager {
-    private static final String BACKUP_FOLDER = "backups";
     private static final String DATA_DIR = "/data/";
+    private static final String BACKUP_FOLDER = DATA_DIR + "backups";
     private static final String TASK_FILE_PATH = DATA_DIR + "tasks.csv";
     private static final String USER_FILE_PATH = DATA_DIR + "users.csv";
 
