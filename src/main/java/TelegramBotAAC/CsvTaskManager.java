@@ -24,7 +24,7 @@ public class CsvTaskManager {
 
         File file = new File(FILE_PATH);
         if (!file.exists()  || file.length() == 0) {
-            try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
+            try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH, true), StandardCharsets.UTF_8))) {
                 writer.writeNext(new String[]{"TaskID", "Description", "DueDate", "AddedBy", "UserID", "Submitted"});
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -91,7 +91,7 @@ public class CsvTaskManager {
     public void addTaskForAllUsers(String description, LocalDate dueDate, String addedBy, Set<Long> userIds){
         int newTaskId = getNextTaskId();
 
-        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH, true), StandardCharsets.UTF_8))) {
             for (long id : userIds){
                 TaskEntry entry = new TaskEntry(newTaskId, description, dueDate, addedBy, id, false);
                 writer.writeNext(entry.toCsvRow());
@@ -104,7 +104,7 @@ public class CsvTaskManager {
     public void addTaskForSingleUser(String description, LocalDate dueDate, String addedBy, long userId) {
         int newTaskId = getNextTaskId();
 
-        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH, true), StandardCharsets.UTF_8))) {
             TaskEntry entry = new TaskEntry(newTaskId, description, dueDate, addedBy, userId, false);
             writer.writeNext(entry.toCsvRow());
         } catch (IOException e) {
@@ -136,7 +136,7 @@ public class CsvTaskManager {
     }
 
     private void saveAllTasks(List<TaskEntry> tasks) {
-        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH, true), StandardCharsets.UTF_8))) {
             writer.writeNext(new String[]{"TaskID", "Description", "DueDate", "AddedBy", "UserID", "Submitted"});
 
             for (TaskEntry task : tasks) {
