@@ -17,12 +17,6 @@ public class CsvTaskManager {
 
 
     public CsvTaskManager() {
-        // ניקוי הקובץ הקיים
-        File fileToDelete = new File(FILE_PATH);
-        if (fileToDelete.exists()) {
-            fileToDelete.delete();
-            System.out.println("הקובץ tasks.csv נמחק בהצלחה");
-        }
 
         File dir = new File(DATA_DIR);
         if (!dir.exists()) {
