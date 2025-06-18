@@ -23,6 +23,18 @@ public class CsvTaskManager {
             dir.mkdirs();
         }
 
+        // 🧹 מחיקת כל המשימות (תמחק את השורות הבאות אחרי הרצה אחת)
+        File taskFile = new File(FILE_PATH);
+        if (taskFile.exists()) {
+            try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
+                writer.writeNext(new String[]{"TaskID", "Description", "DueDate", "AddedBy", "UserID", "Submitted"});
+                System.out.println("🧹 כל המשימות נמחקו בהצלחה!");
+            } catch (IOException e) {
+                System.out.println("❌ לא הצלחנו לאפס את קובץ המשימות.");
+                e.printStackTrace();
+            }
+        }
+
         File file = new File(FILE_PATH);
         if (!file.exists() || isFileEmpty(file)) {
             try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
