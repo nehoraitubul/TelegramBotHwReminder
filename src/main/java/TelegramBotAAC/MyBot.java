@@ -41,7 +41,6 @@ public class MyBot extends TelegramLongPollingBot {
 
     public MyBot(){
         registerCommands();
-//        startDailyReminder();
     }
 
     public String getBotToken(){
@@ -88,6 +87,11 @@ public class MyBot extends TelegramLongPollingBot {
 
             if (messageText.equals("/help")) {
                 handleHelpCommand(chatId);
+                return;
+            }
+
+            if (messageText.equals("/taskpush")) { // NEW
+                handleTaskPushToggle(chatId);
                 return;
             }
 
@@ -144,6 +148,26 @@ public class MyBot extends TelegramLongPollingBot {
         try {
             if (chatId.equals(adminId)) {
                 csvTaskManager.addTaskForAllUsers(description, dueDate, "Admin", userManager.getAllUsers());
+                for (Long userId : userManager.getAllUsers()) {  //NEW
+                    if (userManager.isReceivingAdminTasks(userId)) {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("🆕 נוספה משימה חדשה ממנהל הקבוצה!\n");
+                        sb.append("📌 *מטלה:* ").append(description).append("\n");
+                        sb.append("📅 *תאריך הגשה:* ").append(dueDate).append("\n");
+                        sb.append("⏳ ").append(getDeadlineStatus(dueDate));
+
+                        SendMessage message = new SendMessage();
+                        message.setChatId(userId);
+                        message.setText(sb.toString());
+                        message.enableMarkdown(true);
+
+                        try {
+                            execute(message);
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
                 sendMessage(chatId, "המשימה נוספה לכולם בהצלחה!");
             } else {
                 csvTaskManager.addTaskForSingleUser(description, dueDate, "User", chatId);
@@ -197,6 +221,7 @@ public class MyBot extends TelegramLongPollingBot {
         commands.add(new BotCommand("/update", "סימון משימה כהוגשה/ביטול הגשה"));
         commands.add(new BotCommand("/list", "הצגת משימות פתוחות"));
         commands.add(new BotCommand("/help", "עזרה"));
+        commands.add(new BotCommand("/taskpush", "הפעל/כבה קבלת משימות מהאדמין")); //NEW
 
         try {
             this.execute(new SetMyCommands(commands, new BotCommandScopeDefault(), null));
@@ -230,6 +255,16 @@ public class MyBot extends TelegramLongPollingBot {
         else if (data.equals("CANCEL")) {
             removeInlineKeyboard(chatId, messageId);
             sendMessage(chatId, "הפעולה בוטלה ❌");
+        }
+        else if (data.equals("DISABLE_PUSH")) {
+            userManager.setReceivingAdminTasks(chatId, false);
+            sendMessage(chatId, "🔕 לא תקבל יותר משימות מהאדמין.");
+            removeInlineKeyboard(chatId, messageId);
+        }
+        else if (data.equals("ENABLE_PUSH")) {
+            userManager.setReceivingAdminTasks(chatId, true);
+            sendMessage(chatId, "📩 המשימות מהאדמין הופעלו מחדש.");
+            removeInlineKeyboard(chatId, messageId);
         }
     }
 
@@ -327,23 +362,6 @@ public class MyBot extends TelegramLongPollingBot {
     }
 
 
-
-//    private Date getNextRunTime(int hour, int minute) {
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.set(Calendar.HOUR_OF_DAY, hour);
-//        calendar.set(Calendar.MINUTE, minute);
-//        calendar.set(Calendar.SECOND, 0);
-//        calendar.set(Calendar.MILLISECOND, 0);
-//
-//        Date targetTime = calendar.getTime();
-//
-//        if (targetTime.before(new Date())) {
-//            calendar.add(Calendar.DATE, 1);
-//            targetTime = calendar.getTime();
-//        }
-//
-//        return targetTime;
-//    }
 
     public void sendDailyReminderToAllUsers() {
         for (Long userId : userManager.getAllUsers()) {
@@ -478,5 +496,47 @@ public class MyBot extends TelegramLongPollingBot {
         }
     }
 
+
+    private void handleTaskPushToggle(Long chatId) {  //NEW
+        if (chatId.equals(adminId)) {
+            sendMessage(chatId, "⚠️ לא ניתן לבטל קבלת משימות עבור האדמין.");
+            return;
+        }
+        boolean currentlyEnabled = userManager.isReceivingAdminTasks(chatId);
+
+        String prompt = currentlyEnabled
+                ? "האם אתה בטוח שברצונך *לבטל* את קבלת המשימות מהאדמין?"
+                : "האם ברצונך *להפעיל מחדש* את קבלת המשימות מהאדמין?";
+
+        String confirmLabel = currentlyEnabled ? "✅ כן, בטל קבלה" : "🔄 הפעל מחדש";
+        String confirmData = currentlyEnabled ? "DISABLE_PUSH" : "ENABLE_PUSH";
+
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton confirmButton = new InlineKeyboardButton();
+        confirmButton.setText(confirmLabel);
+        confirmButton.setCallbackData(confirmData);
+
+        InlineKeyboardButton cancelButton = new InlineKeyboardButton();
+        cancelButton.setText("❌ ביטול");
+        cancelButton.setCallbackData("CANCEL");
+
+        rows.add(List.of(confirmButton));
+        rows.add(List.of(cancelButton));
+        markup.setKeyboard(rows);
+
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(prompt);
+        message.setReplyMarkup(markup);
+        message.enableMarkdown(true);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
