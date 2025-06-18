@@ -91,6 +91,12 @@ public class MyBot extends TelegramLongPollingBot {
                 return;
             }
 
+            if (messageText.equals("/dailyReminderNow") && chatId.equals(adminId)) {
+                for (Long userId : userManager.getAllUsers()) {
+                    sendReminderForUser(userId);
+                }
+            }
+
             UserState state = userStates.getOrDefault(chatId, UserState.NONE);
 
             switch (state) {
@@ -321,26 +327,6 @@ public class MyBot extends TelegramLongPollingBot {
 
 
 
-
-//    public void startDailyReminder() {
-//        TimerTask task = new TimerTask() {
-//            @Override
-//            public void run() {
-//                for (Long chatId : userManager.getAllUsers()) {
-//                    sendReminderForUser(chatId);
-//                }
-//                backupManager.backupFiles();
-//            }
-//        };
-//
-//        Date firstRun = getNextRunTime(20, 00);
-//        long period = 24 * 60 * 60 * 1000;
-//
-//        timer.scheduleAtFixedRate(task, firstRun, period);
-//    }
-
-
-
     private Date getNextRunTime(int hour, int minute) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -358,39 +344,39 @@ public class MyBot extends TelegramLongPollingBot {
         return targetTime;
     }
 
-//    private void sendReminderForUser(Long chatId) {
-//        List<TaskEntry> tasks = csvTaskManager.loadUnsubmittedTasksByUserId(chatId);
-//
-//        if (tasks.isEmpty()) {
-//            sendMessage(chatId, "📅 אין לך משימות פתוחות להיום. הכל מוגש ✅");
-//            return;
-//        }
-//
-//        StringBuilder sb = new StringBuilder();
-//        sb.append("📢 *תזכורת יומית!* 📅\n");
-//        sb.append("המשימות שעדיין פתוחות אצלך:\n\n");
-//
-//        for (TaskEntry task : tasks) {
-//            sb.append("📌 *מטלה:* ").append(task.description)
-//                    .append("\n📅 עד: ").append(task.dueDate)
-//                    .append("\n⏳ ").append(getDeadlineStatus(task.dueDate))
-//                    .append("\n✅ סטטוס: עדיין לא הוגש")
-//                    .append("\n")
-//                    .append("──────────────\n");
-//        }
-//
-//        sb.append("\n💡 בסיום המשימה — יש לסמן אותה כהוגשה ✅");
-//
-//        SendMessage message = new SendMessage();
-//        message.setChatId(chatId);
-//        message.setText(sb.toString());
-//        message.enableMarkdown(true);
-//        try {
-//            execute(message);
-//        } catch (TelegramApiException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    private void sendReminderForUser(Long chatId) {
+        List<TaskEntry> tasks = csvTaskManager.loadUnsubmittedTasksByUserId(chatId);
+
+        if (tasks.isEmpty()) {
+            sendMessage(chatId, "📅 אין לך משימות פתוחות להיום. הכל מוגש ✅");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("📢 *תזכורת יומית!* 📅\n");
+        sb.append("המשימות שעדיין פתוחות אצלך:\n\n");
+
+        for (TaskEntry task : tasks) {
+            sb.append("📌 *מטלה:* ").append(task.description)
+                    .append("\n📅 עד: ").append(task.dueDate)
+                    .append("\n⏳ ").append(getDeadlineStatus(task.dueDate))
+                    .append("\n✅ סטטוס: עדיין לא הוגש")
+                    .append("\n")
+                    .append("──────────────\n");
+        }
+
+        sb.append("\n💡 בסיום המשימה — יש לסמן אותה כהוגשה ✅");
+
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(sb.toString());
+        message.enableMarkdown(true);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     public void assignOpenTasksToNewUser(Long newChatId) {

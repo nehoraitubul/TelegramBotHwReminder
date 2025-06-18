@@ -1,16 +1,42 @@
 package TelegramBotAAC;
 
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 public class ReminderRunner {
     public static void main(String[] args) {
-        // טוען את כל המנהלים בדיוק כמו בבוט שלך
-        CsvTaskManager csvTaskManager = new CsvTaskManager();
-        UserManager userManager = new UserManager();
+        String botToken = System.getenv("TELEGRAM_BOT_TOKEN");
+        String adminChatId = "1276968974";
+        String urlString = "https://api.telegram.org/bot" + botToken + "/sendMessage";
 
-        // עובר על כל היוזרים
-        for (Long chatId : userManager.getAllUsers()) {
-            ReminderSender.sendReminder(chatId, csvTaskManager);
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type", "application/json");
+
+            String jsonBody = """
+                {
+                  "chat_id": %s,
+                  "text": "/dailyReminderNow"
+                }
+                """.formatted(adminChatId);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(jsonBody.getBytes());
+            }
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 200) {
+                System.out.println("נשלחה פקודה /dailyReminderNow ✅");
+            } else {
+                System.out.println("שגיאה בשליחת הפקודה: קוד " + responseCode);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        System.out.println("התזכורת נשלחה בהצלחה לכל המשתמשים ✅");
     }
 }
