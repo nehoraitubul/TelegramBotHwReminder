@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 
 public class ReminderRunner {
     public static void main(String[] args) {
-        String botToken = EnvLoader.getEnv("TELEGRAM_BOT_TOKEN");
+        String botToken = System.getenv("TELEGRAM_BOT_TOKEN");
         String adminChatId = "1276968974";
         String urlString = "https://api.telegram.org/bot" + botToken + "/sendMessage";
 
