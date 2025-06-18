@@ -20,15 +20,7 @@ public class UserManager {
             dir.mkdirs();
         }
 
-//        // מחיקה חד־פעמית של הקובץ - אפשר למחוק קוד זה אחרי הריצה
-//        File toDelete = new File(FILE_PATH);
-//        if (toDelete.exists()) {
-//            if (toDelete.delete()) {
-//                System.out.println("🧹 קובץ users.csv נמחק בהצלחה!");
-//            } else {
-//                System.out.println("❌ לא הצלחתי למחוק את users.csv");
-//            }
-//        }
+
 
         File file = new File(FILE_PATH);
         boolean fileExists = file.exists();
