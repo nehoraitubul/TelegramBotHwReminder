@@ -328,21 +328,28 @@ public class MyBot extends TelegramLongPollingBot {
 
 
 
-    private Date getNextRunTime(int hour, int minute) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
+//    private Date getNextRunTime(int hour, int minute) {
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.set(Calendar.HOUR_OF_DAY, hour);
+//        calendar.set(Calendar.MINUTE, minute);
+//        calendar.set(Calendar.SECOND, 0);
+//        calendar.set(Calendar.MILLISECOND, 0);
+//
+//        Date targetTime = calendar.getTime();
+//
+//        if (targetTime.before(new Date())) {
+//            calendar.add(Calendar.DATE, 1);
+//            targetTime = calendar.getTime();
+//        }
+//
+//        return targetTime;
+//    }
 
-        Date targetTime = calendar.getTime();
-
-        if (targetTime.before(new Date())) {
-            calendar.add(Calendar.DATE, 1);
-            targetTime = calendar.getTime();
+    public void sendDailyReminderToAllUsers() {
+        for (Long userId : userManager.getAllUsers()) {
+            sendReminderForUser(userId);
         }
-
-        return targetTime;
+        System.out.println("📬 כל התזכורות נשלחו!");
     }
 
     public void sendReminderForUser(Long chatId) {
