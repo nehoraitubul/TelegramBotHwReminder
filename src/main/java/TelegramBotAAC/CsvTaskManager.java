@@ -18,27 +18,27 @@ public class CsvTaskManager {
 
     public CsvTaskManager() {
 
-        File dir = new File(DATA_DIR);
+        File dir = new File(Constants.DATA_DIR);
         if (!dir.exists()) {
             dir.mkdirs();
         }
 
-        // 🧹 מחיקת כל המשימות (תמחק את השורות הבאות אחרי הרצה אחת)
-        File taskFile = new File(FILE_PATH);
-        if (taskFile.exists()) {
-            try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
-                writer.writeNext(new String[]{"TaskID", "Description", "DueDate", "AddedBy", "UserID", "Submitted"});
-                System.out.println("🧹 כל המשימות נמחקו בהצלחה!");
-            } catch (IOException e) {
-                System.out.println("❌ לא הצלחנו לאפס את קובץ המשימות.");
-                e.printStackTrace();
-            }
-        }
+//        // 🧹 מחיקת כל המשימות (תמחק את השורות הבאות אחרי הרצה אחת)
+//        File taskFile = new File(Constants.TASKS_FILE);
+//        if (taskFile.exists()) {
+//            try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(Constants.TASKS_FILE), StandardCharsets.UTF_8))) {
+//                writer.writeNext(new String[]{"TaskID", "Description", "DueDate", "AddedBy", "UserID", "Submitted"});
+//                System.out.println("🧹 כל המשימות נמחקו בהצלחה!");
+//            } catch (IOException e) {
+//                System.out.println("❌ לא הצלחנו לאפס את קובץ המשימות.");
+//                e.printStackTrace();
+//            }
+//        }
 
-        File file = new File(FILE_PATH);
+        File file = new File(Constants.TASKS_FILE);
         if (!file.exists() || isFileEmpty(file)) {
-            try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
-                writer.writeNext(new String[]{"TaskID", "Description", "DueDate", "AddedBy", "UserID", "Submitted"});
+            try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(Constants.TASKS_FILE), StandardCharsets.UTF_8))) {
+                writer.writeNext(Constants.TASKS_HEADER);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -58,7 +58,7 @@ public class CsvTaskManager {
         List<TaskEntry> tasks = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
-        try (CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(FILE_PATH), StandardCharsets.UTF_8))) {
+        try (CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(Constants.TASKS_FILE), StandardCharsets.UTF_8))) {
 
             reader.readNext();
             String[] nextLine;
@@ -85,7 +85,7 @@ public class CsvTaskManager {
         List<TaskEntry> tasks = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
-        try (CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(FILE_PATH), StandardCharsets.UTF_8))) {
+        try (CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(Constants.TASKS_FILE), StandardCharsets.UTF_8))) {
             reader.readNext();
             String[] nextLine;
 
@@ -112,7 +112,7 @@ public class CsvTaskManager {
     public void addTaskForAllUsers(String description, LocalDate dueDate, String addedBy, Set<Long> userIds){
         int newTaskId = getNextTaskId();
 
-        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH, true), StandardCharsets.UTF_8))) {
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(Constants.TASKS_FILE, true), StandardCharsets.UTF_8))) {
             for (long id : userIds){
                 TaskEntry entry = new TaskEntry(newTaskId, description, dueDate, addedBy, id, false);
                 writer.writeNext(entry.toCsvRow());
@@ -125,7 +125,7 @@ public class CsvTaskManager {
     public void addTaskForSingleUser(String description, LocalDate dueDate, String addedBy, long userId) {
         int newTaskId = getNextTaskId();
 
-        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH, true), StandardCharsets.UTF_8))) {
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(Constants.TASKS_FILE, true), StandardCharsets.UTF_8))) {
             TaskEntry entry = new TaskEntry(newTaskId, description, dueDate, addedBy, userId, false);
             writer.writeNext(entry.toCsvRow());
         } catch (IOException e) {
@@ -157,7 +157,7 @@ public class CsvTaskManager {
     }
 
     private void saveAllTasks(List<TaskEntry> tasks) {
-        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH), StandardCharsets.UTF_8))) {
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(Constants.TASKS_FILE), StandardCharsets.UTF_8))) {
             writer.writeNext(new String[]{"TaskID", "Description", "DueDate", "AddedBy", "UserID", "Submitted"});
 
             for (TaskEntry task : tasks) {
@@ -174,7 +174,7 @@ public class CsvTaskManager {
         List<TaskEntry> tasks = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
-        try (CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(FILE_PATH), StandardCharsets.UTF_8))) {
+        try (CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(Constants.TASKS_FILE), StandardCharsets.UTF_8))) {
             reader.readNext();
             String[] nextLine;
 
