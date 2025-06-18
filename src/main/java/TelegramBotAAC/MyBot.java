@@ -96,10 +96,10 @@ public class MyBot extends TelegramLongPollingBot {
             }
 
             if (messageText != null && messageText.trim().startsWith("/dailyReminderNow") && chatId.equals(adminId)){
-                System.out.println("🚨 נשלחה פקודת /dailyReminderNow ע״י מנהל");
                 for (Long userId : userManager.getAllUsers()) {
                     sendReminderForUser(userId);
                 }
+                sendMessage(chatId, "📬 התזכורות נשלחו לכל המשתמשים.");
             }
 
             UserState state = userStates.getOrDefault(chatId, UserState.NONE);
@@ -258,12 +258,12 @@ public class MyBot extends TelegramLongPollingBot {
         }
         else if (data.equals("DISABLE_PUSH")) {
             userManager.setReceivingAdminTasks(chatId, false);
-            sendMessage(chatId, "🔕 לא תקבל יותר משימות מהאדמין.");
+            sendMessage(chatId, "🔕 קבלת המשימות האוטומטיות בוטלה. מטלות חדשות לא יתווספו אוטומטית לרשימה שלך.");
             removeInlineKeyboard(chatId, messageId);
         }
         else if (data.equals("ENABLE_PUSH")) {
             userManager.setReceivingAdminTasks(chatId, true);
-            sendMessage(chatId, "📩 המשימות מהאדמין הופעלו מחדש.");
+            sendMessage(chatId, "📩 קבלת המשימות האוטומטיות הופעלה מחדש. מעכשיו מטלות חדשות יתווספו אוטומטית לרשימה שלך.");
             removeInlineKeyboard(chatId, messageId);
         }
     }
@@ -367,7 +367,6 @@ public class MyBot extends TelegramLongPollingBot {
         for (Long userId : userManager.getAllUsers()) {
             sendReminderForUser(userId);
         }
-        System.out.println("📬 כל התזכורות נשלחו!");
     }
 
     public void sendReminderForUser(Long chatId) {
@@ -439,23 +438,7 @@ public class MyBot extends TelegramLongPollingBot {
 
 
     private void handleHelpCommand(Long chatId) {
-        String helpText = """
-    📚 *הוראות שימוש בבוט:*
-
-    /add — הוספת משימה חדשה.
-    
-    /list — הצגת כל המשימות הפתוחות שלך, כולל ימים שנותרו או איחור.
-    
-    /update — סימון משימה כהוגשה או ביטול הגשה.
-    
-    /help — הצגת הוראות שימוש.
-
-    📅 *הערות לגבי תאריכים:*
-    יש להזין תאריך בפורמט: yyyy-MM-dd
-    לדוגמה: 2025-07-20
-
-    🔔 כל יום ב-20:00 תישלח לך תזכורת אוטומטית לכל המשימות שפתוחות.
-    """;
+        String helpText = Messages.HELP_TEXT;
 
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
@@ -470,20 +453,7 @@ public class MyBot extends TelegramLongPollingBot {
 
 
     private void sendWelcomeMessage(Long chatId) {
-        String welcomeText = """
-🎓 *ברוך הבא למערכת ניהול המשימות של התואר שלנו!*
-
-✅ כל המשימות שפתוחות נוספו אוטומטית לרשימה האישית שלך.
-✅ אין צורך להוסיף בעצמך משימות שכבר קיימות — הכל מתעדכן לבד.
-✅ בכל יום ב-20:00 תקבל תזכורת עם המשימות שלך.
-
-📝 תוכל להשתמש בפקודות:
-- /list — לראות את המשימות שלך
-- /update — לסמן שהגשת משימות או לבטל הגשה
-- /help — לראות שוב את כל ההוראות
-
-🚀 שיהיה בהצלחה בלימודים! ואם יש בעיות — תדברו איתי 😉
-""";
+        String welcomeText = Messages.START_MESSAGE;
 
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
@@ -505,8 +475,8 @@ public class MyBot extends TelegramLongPollingBot {
         boolean currentlyEnabled = userManager.isReceivingAdminTasks(chatId);
 
         String prompt = currentlyEnabled
-                ? "האם אתה בטוח שברצונך *לבטל* את קבלת המשימות מהאדמין?"
-                : "האם ברצונך *להפעיל מחדש* את קבלת המשימות מהאדמין?";
+                ? "האם אתה בטוח שברצונך *לבטל* את קבלת המשימות האוטומטיות?"
+                : "האם ברצונך *להפעיל מחדש* את קבלת המשימות האוטומטיות?";
 
         String confirmLabel = currentlyEnabled ? "✅ כן, בטל קבלה" : "🔄 הפעל מחדש";
         String confirmData = currentlyEnabled ? "DISABLE_PUSH" : "ENABLE_PUSH";
