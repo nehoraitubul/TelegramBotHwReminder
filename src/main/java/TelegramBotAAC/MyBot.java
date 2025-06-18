@@ -91,7 +91,8 @@ public class MyBot extends TelegramLongPollingBot {
                 return;
             }
 
-            if (messageText.equals("/dailyReminderNow") && chatId.equals(adminId)) {
+            if (messageText != null && messageText.trim().startsWith("/dailyReminderNow") && chatId.equals(adminId)){
+                System.out.println("🚨 נשלחה פקודת /dailyReminderNow ע״י מנהל");
                 for (Long userId : userManager.getAllUsers()) {
                     sendReminderForUser(userId);
                 }
