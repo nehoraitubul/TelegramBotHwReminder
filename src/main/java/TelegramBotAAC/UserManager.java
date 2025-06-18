@@ -20,6 +20,16 @@ public class UserManager {
             dir.mkdirs();
         }
 
+        // מחיקה חד־פעמית של הקובץ - אפשר למחוק קוד זה אחרי הריצה
+        File toDelete = new File(FILE_PATH);
+        if (toDelete.exists()) {
+            if (toDelete.delete()) {
+                System.out.println("🧹 קובץ users.csv נמחק בהצלחה!");
+            } else {
+                System.out.println("❌ לא הצלחתי למחוק את users.csv");
+            }
+        }
+
         File file = new File(FILE_PATH);
         boolean fileExists = file.exists();
 
@@ -69,10 +79,14 @@ public class UserManager {
             reader.readNext();
             String[] nextLine;
             while ((nextLine = reader.readNext()) != null) {
-                long id = Long.parseLong(nextLine[0]);
-                boolean receive = nextLine.length > 1 ? Boolean.parseBoolean(nextLine[1]) : true;
-                users.add(id);
-                receiveAdminTasksMap.put(id, receive);
+                try {
+                    long id = Long.parseLong(nextLine[0]);
+                    boolean receive = nextLine.length > 1 ? Boolean.parseBoolean(nextLine[1]) : true;
+                    users.add(id);
+                    receiveAdminTasksMap.put(id, receive);
+                } catch (NumberFormatException e) {
+                    System.out.println("⚠ דילוג על שורה לא חוקית בקובץ users.csv: " + Arrays.toString(nextLine));
+                }
             }
         } catch (IOException | CsvValidationException e) {
             e.printStackTrace();
