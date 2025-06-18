@@ -345,7 +345,7 @@ public class MyBot extends TelegramLongPollingBot {
         return targetTime;
     }
 
-    private void sendReminderForUser(Long chatId) {
+    public void sendReminderForUser(Long chatId) {
         List<TaskEntry> tasks = csvTaskManager.loadUnsubmittedTasksByUserId(chatId);
 
         if (tasks.isEmpty()) {
