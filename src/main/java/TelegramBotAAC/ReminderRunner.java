@@ -1,20 +1,41 @@
 package TelegramBotAAC;
 
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 public class ReminderRunner {
     public static void main(String[] args) {
-        try {
-            CsvTaskManager csvTaskManager = new CsvTaskManager();
-            UserManager userManager = new UserManager();
-            MyBot bot = new MyBot();
+        String botToken = System.getenv("TELEGRAM_BOT_TOKEN");
+        String adminChatId = "1276968974";
+        String urlString = "https://api.telegram.org/bot" + botToken + "/sendMessage";
 
-            for (Long userId : userManager.getAllUsers()) {
-                bot.sendReminderForUser(userId);
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type", "application/json");
+
+            String jsonBody = """
+                {
+                  "chat_id": %s,
+                  "text": "/dailyReminderNow"
+                }
+                """.formatted(adminChatId);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(jsonBody.getBytes());
             }
 
-            System.out.println("📬 כל התזכורות נשלחו בהצלחה!");
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 200) {
+                System.out.println("✅ נשלחה פקודה /dailyReminderNow לבוט!");
+            } else {
+                System.out.println("❌ שגיאה בשליחת הפקודה. קוד: " + responseCode);
+            }
 
         } catch (Exception e) {
-            System.out.println("❌ שגיאה בעת שליחת התזכורות:");
             e.printStackTrace();
         }
     }
