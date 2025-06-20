@@ -212,4 +212,19 @@ public class CsvTaskManager {
         saveAllTasks(tasks);
     }
 
+
+    public void deleteTaskByIdFromAdmin(int taskId) {
+        List<TaskEntry> tasks = loadTasks();
+        List<TaskEntry> filtered = new ArrayList<>();
+
+        for (TaskEntry task : tasks) {
+            // נשאיר את כל המשימות שלא מהאדמין או שלא עם taskId הזה
+            if (!(task.taskId == taskId && task.addedBy.equals("Admin"))) {
+                filtered.add(task);
+            }
+        }
+
+        saveAllTasks(filtered);
+    }
+
 }

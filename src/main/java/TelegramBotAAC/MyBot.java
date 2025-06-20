@@ -95,6 +95,11 @@ public class MyBot extends TelegramLongPollingBot {
                 return;
             }
 
+            if (messageText.equals("/delete") && chatId.equals(adminId)) {
+                handleDeleteMenu(chatId);
+                return;
+            }
+
             if (messageText != null && messageText.trim().startsWith("/dailyReminderNow") && chatId.equals(adminId)){
                 for (Long userId : userManager.getAllUsers()) {
                     sendReminderForUser(userId);
@@ -264,6 +269,12 @@ public class MyBot extends TelegramLongPollingBot {
         else if (data.equals("ENABLE_PUSH")) {
             userManager.setReceivingAdminTasks(chatId, true);
             sendMessage(chatId, "📩 קבלת המשימות האוטומטיות הופעלה מחדש. מעכשיו מטלות חדשות יתווספו אוטומטית לרשימה שלך.");
+            removeInlineKeyboard(chatId, messageId);
+        }
+        else if (data.startsWith("DELETE:") && chatId.equals(adminId)) {
+            int taskId = Integer.parseInt(data.substring(7));
+            csvTaskManager.deleteTaskByIdFromAdmin(taskId);
+            sendMessage(chatId, "🗑️ המשימה נמחקה בהצלחה מכל המשתמשים.");
             removeInlineKeyboard(chatId, messageId);
         }
     }
@@ -501,6 +512,53 @@ public class MyBot extends TelegramLongPollingBot {
         message.setText(prompt);
         message.setReplyMarkup(markup);
         message.enableMarkdown(true);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void handleDeleteMenu(Long chatId) {
+        List<TaskEntry> allTasks = csvTaskManager.loadTasks();
+        Set<Integer> adminTaskIds = new HashSet<>();
+
+        for (TaskEntry task : allTasks) {
+            if (task.addedBy.equals("Admin")) {
+                adminTaskIds.add(task.taskId);
+            }
+        }
+
+        if (adminTaskIds.isEmpty()) {
+            sendMessage(chatId, "אין משימות שהוזנו על ידי האדמין.");
+            return;
+        }
+
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        for (int taskId : adminTaskIds) {
+            // נחפש תיאור אחד מתוך המשימות עם אותו taskId
+            String description = allTasks.stream()
+                    .filter(t -> t.taskId == taskId)
+                    .findFirst()
+                    .map(t -> t.description)
+                    .orElse("ללא תיאור");
+
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText("🗑️ מחק: " + description);
+            button.setCallbackData("DELETE:" + taskId);
+            rows.add(Collections.singletonList(button));
+        }
+
+        markup.setKeyboard(rows);
+
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText("בחר משימה שברצונך למחוק:");
+        message.setReplyMarkup(markup);
 
         try {
             execute(message);
