@@ -418,16 +418,24 @@ public class MyBot extends TelegramLongPollingBot {
     public void assignOpenTasksToNewUser(Long newChatId) {
         List<TaskEntry> allTasks = csvTaskManager.loadTasks();
         LocalDate today = LocalDate.now();
-
-        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(FILE_PATH, true), StandardCharsets.UTF_8))) {
+        
+        // Get unique admin task IDs that are not submitted and not past due
+        Set<Integer> adminTaskIds = new HashSet<>();
+        for (TaskEntry task : allTasks) {
+            if (task.addedBy.equals("Admin") && !task.submitted && !task.dueDate.isBefore(today)) {
+                adminTaskIds.add(task.taskId);
+            }
+        }
+        
+        // Only assign unique admin tasks
+        for (Integer taskId : adminTaskIds) {
+            // Find the first occurrence of this task to get its details
             for (TaskEntry task : allTasks) {
-                if (task.addedBy.equals("Admin") && !task.submitted && !task.dueDate.isBefore(today)) {
-                    TaskEntry newEntry = new TaskEntry(task.taskId, task.description, task.dueDate, task.addedBy, newChatId, false);
-                    writer.writeNext(newEntry.toCsvRow());
+                if (task.taskId == taskId && task.addedBy.equals("Admin")) {
+                    csvTaskManager.addTaskForSingleUser(task.description, task.dueDate, "Admin", newChatId);
+                    break; // Only add once per unique task
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
