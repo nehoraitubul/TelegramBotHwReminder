@@ -100,6 +100,11 @@ public class MyBot extends TelegramLongPollingBot {
                 return;
             }
 
+            if (messageText.equals("/removeMe")) {
+                handleRemoveUser(chatId);
+                return;
+            }
+
             if (messageText != null && messageText.trim().startsWith("/dailyReminderNow") && chatId.equals(adminId)){
                 for (Long userId : userManager.getAllUsers()) {
                     sendReminderForUser(userId);
@@ -227,6 +232,7 @@ public class MyBot extends TelegramLongPollingBot {
         commands.add(new BotCommand("/list", "הצגת משימות פתוחות"));
         commands.add(new BotCommand("/help", "עזרה"));
         commands.add(new BotCommand("/taskpush", "הפעל/כבה קבלת משימות מהאדמין")); //NEW
+        commands.add(new BotCommand("/removeMe", "מחק את המשתמש מהמערכת")); //NEW
 
         try {
             this.execute(new SetMyCommands(commands, new BotCommandScopeDefault(), null));
@@ -573,6 +579,21 @@ public class MyBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+    }
+
+    private void handleRemoveUser(Long chatId) {
+        if (chatId.equals(adminId)) {
+            sendMessage(chatId, "⚠️ לא ניתן למחוק את האדמין מהמערכת.");
+            return;
+        }
+
+        // Remove user from UserManager
+        userManager.removeUser(chatId);
+        
+        // Remove all tasks for this user
+        csvTaskManager.removeAllTasksForUser(chatId);
+        
+        sendMessage(chatId, "🗑️ המשתמש ומשימותיו נמחקו מהמערכת. אתה יכול להצטרף מחדש על ידי שליחת הודעה כלשהי.");
     }
 
 }

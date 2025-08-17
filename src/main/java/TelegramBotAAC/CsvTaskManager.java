@@ -227,4 +227,17 @@ public class CsvTaskManager {
         saveAllTasks(filtered);
     }
 
+    public void removeAllTasksForUser(Long userId) {
+        List<TaskEntry> tasks = loadTasks();
+        List<TaskEntry> filtered = new ArrayList<>();
+
+        for (TaskEntry task : tasks) {
+            if (task.userId != userId) {
+                filtered.add(task);
+            }
+        }
+
+        saveAllTasks(filtered);
+    }
+
 }

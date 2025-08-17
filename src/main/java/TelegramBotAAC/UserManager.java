@@ -122,6 +122,12 @@ public class UserManager {
         saveAllUsers();
     }
 
+    public void removeUser(Long chatId) {
+        users.remove(chatId);
+        receiveAdminTasksMap.remove(chatId);
+        saveAllUsers();
+    }
+
     private void saveAllUsers() {
         try (CSVWriter writer = new CSVWriter(new FileWriter(FILE_PATH))) {
             writer.writeNext(new String[]{"UserID", "ReceiveAdminTasks"});
